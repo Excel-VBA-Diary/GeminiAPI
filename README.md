@@ -1,7 +1,11 @@
 # GeminiAPI
 Gemini APIを経由して問い合わせた結果を返す. (Returns the results of a query made via the Gemini API.)
 
-2026年9月14日以降、COPILOT機能が使用できなくなるというので代替手段としてGemini関数を作ってみた。  
+2026年9月14日以降、COPILOT関数が使用できなくなるというので代替手段としてGemini関数を作ってみた。  
+そもそもCOPILOT関数がなくなるのはExcelの設計思想の一貫性を保つため。  
+すなわち、Excelの設計思想（＝数式は“常に同じ入力なら同じ結果を返す”という決定性・再現性）と、AI応答の“非決定性”が根本的に噛み合わないためということらしい。  
+したがってGemini関数もExcelの設計思想に合致しない。  
+それでも非決定性を容認しつつ利用したい場合はあるだろう。  
   
 前提条件  
 ・コード内のAPI_KEYはご自身で取得したGemini APIキーを割り当てること。  
@@ -12,7 +16,13 @@ Gemini APIを経由して問い合わせた結果を返す. (Returns the results
 Dim ans As String
 ans = Gemini("日本で一番高い山は？")
 ```
+構文  
+Gemini((PromptText, \[ModelNam\])  
   
+引数  
+PromptText（必須）　プロンプト  
+ModelNam（省略可）　AIモデルを指定する。デフォルトはgemini-3.5-flash-lite 。  
+
 VBAコード
 ```
 Option Explicit
