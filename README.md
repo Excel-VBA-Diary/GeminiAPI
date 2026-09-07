@@ -22,8 +22,10 @@ ans = Gemini("日本で一番高い山は？")
 Gemini((PromptText, \[ModelName\])  
   
 引数  
-PromptText（必須）　プロンプト  
-ModelNam（省略可）　AIモデルを指定する。デフォルトはgemini-3.5-flash-lite 。  
+|  引数  |  説明  |
+| ------ | ------ |
+| PromptText（必須） | プロンプト |  
+| ModelNam（省略可） | AIモデルを指定する。デフォルトはgemini-3.5-flash-lite 。 |  
 
 VBAコード
 ```
