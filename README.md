@@ -1,5 +1,5 @@
 # GeminiAPI
-Gemini APIを経由して問い合わせた結果を返す. (Returns the results of a query made via the Gemini API.)
+### Gemini APIを経由して問い合わせた結果を返す. (Returns the results of a query made via the Gemini API.)
   
 Version 1.00 (September 7, 2026)
   
@@ -9,16 +9,16 @@ Version 1.00 (September 7, 2026)
 したがってGemini関数もExcelの設計思想に合致しない。  
 それでも非決定性を容認しつつ利用したい場合はあるだろう。  
   
-前提条件  
+### 前提条件  
 ・コード内のAPI_KEYはご自身で取得したGemini APIキーを割り当てること。  
 ・Gemini APIキーはGoogle AI Studioで取得する。  
   
-使用例
+### 使用例
 ```
 Dim ans As String
 ans = Gemini("日本で一番高い山は？")
 ```
-構文  
+### 構文  
 Gemini((PromptText, \[ModelName\])  
   
 Gemini関数の書式には、次の引数があります。   
@@ -29,7 +29,7 @@ Gemini関数の書式には、次の引数があります。
   
 Gemini AIの利用ライセンス（料金プラン）によって利用できるAIモデルや回数制限が異なるので事前に確認すること。  
   
-VBAコード
+### VBAコード
 ```
 Option Explicit
 
