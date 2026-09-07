@@ -21,12 +21,13 @@ ans = Gemini("日本で一番高い山は？")
 構文  
 Gemini((PromptText, \[ModelName\])  
   
-引数  
+Gemini関数の書式には、次の引数があります。   
 |  引数  |  説明  |
 | ------ | ------ |
 | PromptText（必須） | プロンプト |  
 | ModelNam（省略可） | AIモデルを指定する。デフォルトはgemini-3.5-flash-lite 。 |  
-
+Gemini AIの利用ライセンス（料金プラン）によって利用できるAIモデルや回数制限が異なるので事前に確認すること。  
+  
 VBAコード
 ```
 Option Explicit
