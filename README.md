@@ -17,7 +17,7 @@ Dim ans As String
 ans = Gemini("日本で一番高い山は？")
 ```
 構文  
-Gemini((PromptText, \[ModelNam\])  
+Gemini((PromptText, \[ModelName\])  
   
 引数  
 PromptText（必須）　プロンプト  
