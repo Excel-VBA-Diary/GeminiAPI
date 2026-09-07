@@ -1,6 +1,8 @@
 # GeminiAPI
 Gemini APIを経由して問い合わせた結果を返す. (Returns the results of a query made via the Gemini API.)
-
+  
+Version 1.00 (September 7, 2026)
+  
 2026年9月14日以降、COPILOT関数が使用できなくなるというので代替手段としてGemini関数を作ってみた。  
 そもそもCOPILOT関数がなくなるのはExcelの設計思想の一貫性を保つため。  
 すなわち、Excelの設計思想（＝数式は“常に同じ入力なら同じ結果を返す”という決定性・再現性）と、AI応答の“非決定性”が根本的に噛み合わないためということらしい。  
