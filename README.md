@@ -7,7 +7,7 @@ Gemini APIを経由して問い合わせた結果を返す. (Returns the results
 ・コード内のAPI_KEYはご自身で取得したGemini APIキーを割り当てること。  
 ・APIキーはGoogle AI Studioで取得する。  
 
-使用例  
+使用例
 ```
 Dim ans As String
 ans = Gemini("日本で一番高い山は？")
