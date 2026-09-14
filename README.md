@@ -1,7 +1,7 @@
 # GeminiAPI
 ### Gemini APIを経由して問い合わせた結果を返す. (Returns the results of a query made via the Gemini API.)
   
-Version 1.00 (September 7, 2026)
+Version 1.01 (September 14, 2026)
   
 2026年9月14日以降、ExcelのCOPILOT関数が使用できなくなるというので代替関数としてGemini関数を作ってみた。  
 そもそもCOPILOT関数がなくなるのはExcelの設計思想の一貫性を保つため。  
@@ -10,7 +10,7 @@ Version 1.00 (September 7, 2026)
 それでも非決定性を容認しつつ利用したいケースはあるだろう。  
   
 ### 前提条件  
-・コード内のAPI_KEYはご自身で取得したGemini APIキーを割り当てること。  
+・コード内のGemini_API_KEYはご自身で取得したGemini APIキーを割り当てること。  
 ・Gemini APIキーはGoogle AI Studioで取得する。  
   
 ### 使用例
@@ -37,6 +37,9 @@ Option Explicit
 ' Gemini APIを経由して問い合わせた結果を返す.
 ' Returns the results of a query made via the Gemini API.
 '
+' Syntax:
+'   Gemini(PromptText, [ModelName])
+'
 ' Arguments:
 '   PromptText: Required, String
 '               Text that describes the task or question for the AI model.
@@ -44,7 +47,7 @@ Option Explicit
 '
 '   ModelName: Optional, String
 '              Specify the Gemini AI model. If omitted,
-'              the default is “gemini-3.5-flash-lite.”
+'              the default is "emini-3.5-flash-lite".
 '
 ' Return Value:
 '   Response (String)
@@ -54,18 +57,18 @@ Option Explicit
 '   ans = Gemini(prompt)
 '
 ' 前提条件
-'   コード内のAPI_KEYはご自身で取得したGemini APIキーを割り当てること。
-'   APIキーはGoogle AI Studioで取得する。
+'   コード内の Gemini_API_KEY はご自身で取得したGemini APIキーを割り当てること。
+'   APIキーは Google AI Studio で取得する。
 '
 ' Prerequisites
-'   Replace “API_KEY” in the code with the Gemini API key you obtained.
+'   Replace “Gemini_API_KEY” in the code with the Gemini API key you obtained.
 '   You can obtain the API key from Google AI Studio.
 '
 '
 ' Author: Excel VBA Diary (@excelvba_diary)
 ' Created: September 7, 2026
-' Last Updated: September 7, 2026
-' Version: 1.000
+' Last Updated: September 14, 2026
+' Version: 1.001
 ' License: MIT
 '-------------------------------------------------------------------------------
 
@@ -76,20 +79,21 @@ Public Function Gemini(PromptText As String, Optional ModelName As String = "") 
     On Error GoTo ErrHandler
     
     If Trim(PromptText) = "" Then
-        Gemini = "#ERROR:EmptyPrompt"
+        Gemini = "#ERROR: EmptyPrompt"
         Exit Function
     End If
     
-    If Len(API_KEY) = 0 Then
-        Gemini = "#ERROR:NoApiKey"
+    If Len(Gemini_API_KEY) = 0 Then
+        Gemini = "#ERROR: NoApiKey"
         Exit Function
     End If
     
     Dim model As String
     model = IIf(ModelName = "", DefaultModel, ModelName)
     
+    ' プロンプト内の特殊文字（\, ", CRLF）をJSON用にエスケープする
+    ' Escape special characters (\, ", line breaks) in the prompt for JSON
     
-    ' プロンプト内の特殊文字（\, ", 改行）をJSON用にエスケープ処理
     Dim safePrompt As String
     safePrompt = PromptText
     safePrompt = Replace(safePrompt, "\", "\\")
@@ -99,6 +103,8 @@ Public Function Gemini(PromptText As String, Optional ModelName As String = "") 
     safePrompt = Replace(safePrompt, vbLf, "\n")
     
     ' JSONペイロードの作成
+    ' Creating a JSON Payload
+    
     Dim jsonPpayload As String
     jsonPpayload = "{""contents"": [{""parts"":[{""text"": """ & safePrompt & """}]}]}"
     
@@ -109,14 +115,14 @@ Public Function Gemini(PromptText As String, Optional ModelName As String = "") 
     Set objHttp = CreateObject("MSXML2.ServerXMLHTTP.6.0")
     With objHttp
         .Open "POST", api_url, False
-        .setTimeouts 5000, 5000, 10000, 30000
-        .SetRequestHeader "Content-Type", "application/json; charset=utf-8"
-        .SetRequestHeader "x-goog-api-key", API_KEY
-        .Send StrToUtf8Bytes(jsonPpayload)
+        .setTimeouts 5000, 5000, 10000, 60000
+        .setRequestHeader "Content-Type", "application/json; charset=utf-8"
+        .setRequestHeader "x-goog-api-key", Gemini_API_KEY
+        .send StrToUtf8Bytes(jsonPpayload)
         
         If .Status <> 200 Then
             Gemini = "#ERROR:" & .Status & ":" & .responseText
-            Debug.Print "エラーが発生しました: Status="; .Status
+            Debug.Print "POST Error occurred: Status="; .Status
             Debug.Print .responseText
             Exit Function
         End If
@@ -125,31 +131,33 @@ Public Function Gemini(PromptText As String, Optional ModelName As String = "") 
         jsonResponse = DecodeUtf8Response(.responseBody)
     End With
     
-    Gemini = ExtractTextFromJson(jsonResponse)
+    Gemini = ExtractJsonValue(jsonResponse, "text")
     Exit Function
 
 ErrHandler:
     Gemini = "#ERROR:Exception:" & Err.Number & ":" & Err.Description
-    Debug.Print "実行時エラーが発生しました: Number="; Err.Number
+    Debug.Print "Runtime Error occurred: Number="; Err.Number
     Debug.Print Err.Description
 
 End Function
     
     
 ' JSONのテキストデーターをバイナリーデーターに変換する
+' Convert JSON text data to binary data
+
 Private Function StrToUtf8Bytes(ByVal JsonText As String) As Variant
     
     Dim objStream As Object
     Set objStream = CreateObject("ADODB.Stream")
     With objStream
-        .Type = 2                   ' adTypeText (テキストデーター)
+        .Type = 2                   ' adTypeText (Text Data)
         .Charset = "UTF-8"
         .Open
         .WriteText JsonText
         .Position = 0
-        .Type = 1                   ' adTypeBinary (バイナリデーター)
-        .Position = 3               ' UTF-8 BOM (EF BB BF)が付くので3バイト分スキップ
-        StrToUtf8Bytes = .Read      ' Variant型として配列が返る
+        .Type = 1                   ' adTypeBinary (Binary Data)
+        .Position = 3               ' Since a UTF-8 BOM (EF BB BF) is appended at the beginning, skip 3 bytes.
+        StrToUtf8Bytes = .Read      ' An array is returned as a Variant
         .Close
     End With
 
@@ -157,16 +165,18 @@ End Function
 
 
 ' JSONのバイナリーデータをテキストデーターに変換する
+' Convert JSON binary data to text data
+
 Private Function DecodeUtf8Response(ByVal JsonBinary As Variant) As String
     
     Dim objStream As Object
     Set objStream = CreateObject("ADODB.Stream")
     With objStream
-        .Type = 1                   ' adTypeBinary (バイナリデーター)
+        .Type = 1                   ' adTypeBinary (Binary Data)
         .Open
         .Write JsonBinary
         .Position = 0
-        .Type = 2                   ' adTypeText (テキストデーター)
+        .Type = 2                   ' adTypeText (Text Data)
         .Charset = "UTF-8"
         DecodeUtf8Response = .ReadText
         .Close
@@ -177,21 +187,30 @@ End Function
 
 ' JSONテキストの中からtextキーの値（本文）を抽出する
 ' ここでは正規表現で抽出しているがJSONパーサーを使ってもよい
-Private Function ExtractTextFromJson(ByVal jsonResponse As String) As String
+
+' Retrieve the string for a specified key from JSON
+' Although this code is using regular expressions for extraction here,
+' you can also use a JSON parser.
+
+Function ExtractJsonValue(ByVal JsonText As String, _
+                          ByVal keyName As String) As String
     
     Dim matches As Object, strTemp As String
-    With CreateObject("VBScript.RegExp")
-        .Pattern = """text"":\s*?""(.*?)"""
-        Set matches = .Execute(jsonResponse)
+    
+    Dim objRegExp As Object
+    Set objRegExp = CreateObject("VBScript.RegExp")
+    
+    With objRegExp
+        .Pattern = """" & keyName & """:\s*?""(.*?)"""
+        Set matches = .Execute(JsonText)
         If matches.Count > 0 Then
             strTemp = matches(0).SubMatches(0)
             strTemp = Replace(strTemp, "\""", """")
             strTemp = Replace(strTemp, "\\", "\")
             strTemp = Replace(strTemp, "\n", vbCrLf)
-
-            ExtractTextFromJson = strTemp
+            ExtractJsonValue = strTemp
         Else
-            ExtractTextFromJson = "#ERROR:TextNotFound"
+            ExtractJsonValue = "#ERROR: TextNotFound"
         End If
     End With
 
