@@ -19,7 +19,7 @@ Dim ans As String
 ans = Gemini("日本で一番高い山は？")
 ```
 ### 構文  
-Gemini((PromptText, \[ModelName\])  
+Gemini(PromptText, \[ModelName\])  
   
 Gemini関数の書式には、次の引数があります。   
 |  引数  |  説明  |
